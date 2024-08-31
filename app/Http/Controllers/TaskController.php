@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Resources\Task\TaskResourceCollection;
+use App\Repositories\Interfaces\TaskRepositoryInterface;
+use Illuminate\Http\Response;
 
 class TaskController extends Controller
 {
+    public function __construct(
+        private TaskRepositoryInterface $taskRepository
+    ) {}
+
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +21,10 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return response()->json(Task::all());
+        $tasks = $this->taskRepository->all();
+        $collection = (new TaskResourceCollection($tasks));
+
+        return response()->json($collection);
     }
 
     /**
@@ -34,15 +43,15 @@ class TaskController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $newTask = new Task;
-        $newTask->name = $request->input('name');
-        $newTask->save();
+        $success = $this->taskRepository->store($request->all());
 
-        return $newTask;
+        if ($success) {
+            return response()->json(['message' => 'Task Created Successfully!'], Response::HTTP_CREATED);
+        }
 
-
+        return response()->json(['message' => 'Task Creation Unsuccessfull!'], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -74,18 +83,20 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateTaskRequest $request, $id)
     {
-        $existingTask = Task::find($id);  
+        $attributes = $request->all();
+        $success = $this->taskRepository->update($id, $attributes);
 
-        if($existingTask){
-           $existingTask->completed = $request->Task['completed'] ? true : false;
-           $existingTask->updated_at = Carbon::now() ;
-           $existingTask->save();
-           return $existingTask;
+        if ($success) {
+            if (isset($attributes['completed']) && $attributes['completed'] == 1) {
+                return response()->json(['message' => 'Task Marked As Completed!'], Response::HTTP_OK);
+            }
 
-        } 
-        return "Task not found";
+            return response()->json(['message' => 'Task Updated Successfully!'], Response::HTTP_OK);
+        }
+
+        return response()->json(['message' => 'Task Update Unsuccessfull!'], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -96,11 +107,12 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        $existingTask = Task::find($id);
-        if($existingTask){
-           $existingTask->delete();
-           return "Task deleted";
+        $success = $this->taskRepository->delete($id);
+
+        if ($success) {
+            return response()->json(['message' => 'Task Deleted Successfully!'], Response::HTTP_OK);
         }
-        return "Task not found";
+
+        return response()->json(['message' => 'Task Deletion Unsuccessfull!'], Response::HTTP_BAD_REQUEST);
     }
 }

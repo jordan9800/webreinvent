@@ -8,41 +8,45 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TaskRepository implements TaskRepositoryInterface
 {
-    public function all($attributes, Task $user): Collection
+    public function all($attributes = []): Collection
     {
-        $notifications = $user->notifications()
-            ->when(isset($attributes['status']) && $attributes['status'] == 'read', function ($query) {
-                $query->whereNotNull('read_At');
-            })
-            ->when(isset($attributes['status']) && $attributes['status'] == 'unread', function ($query) {
-                $query->whereNull('read_At');
-            })
-            ->where('data->expiry_date', '>', date('Y-m-d'))
-            ->orderByDesc('notifications.read_at')
-            ->get();
+        return Task::all();
+    }
 
-        return $notifications;
-
+    public function get($id): ?Task
+    {
+        return Task::findOrFail($id);
     }
 
     public function store($attributes = []): bool
     {
-        return true;
+        $success = Task::create([
+            'name' => $attributes['name'],
+        ]);
+
+        return $success ? true : false;
     }
 
-    public function markRead($attributes, Task $user): bool
+    public function update($id, $attributes = []): bool
     {
-        $notifications = $user->notifications()
-            ->when(isset($attributes['notification_id']) && $attributes['notification_id'], function ($query) use ($attributes) {
-                $query->where('id', $attributes['notification_id']);
-            })->get();
+        $task = $this->get($id);
+        $data = [
+            'name' => $attributes['name'],
+        ];
 
-        if ($notifications->isNotEmpty()) {
-            $notifications->markAsRead();
-
-            return true;
+        if (isset($attributes['completed'])) {
+            $data['completed'] = $attributes['completed'];
         }
+        $success = $task->update($data);
 
-        return false;
+        return $success ? true : false;
+    }
+
+    public function delete($id): Task|bool
+    {
+        $task = $this->get($id);
+        $success = $task->delete();
+
+        return $success ? true : false;
     }
 }
