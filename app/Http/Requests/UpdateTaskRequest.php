@@ -24,7 +24,7 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', Rule::unique(Task::class)->ignore($this->id)],
+            'name' => ['nullable', Rule::unique(Task::class)->ignore($this->id)],
         ];
     }
 }

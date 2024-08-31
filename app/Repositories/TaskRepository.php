@@ -30,12 +30,14 @@ class TaskRepository implements TaskRepositoryInterface
     public function update($id, $attributes = []): bool
     {
         $task = $this->get($id);
-        $data = [
-            'name' => $attributes['name'],
-        ];
+        $data = [];
 
         if (isset($attributes['completed'])) {
             $data['completed'] = $attributes['completed'];
+        }
+        
+        if (isset($attributes['name'])) {
+            $data['name'] = $attributes['name'];
         }
         $success = $task->update($data);
 
