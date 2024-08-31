@@ -10,7 +10,13 @@ class TaskRepository implements TaskRepositoryInterface
 {
     public function all($attributes = []): Collection
     {
-        return Task::all();
+        $query = Task::query();
+
+        if (isset($attributes['completed'])) {
+            $query->where('completed', $attributes['completed']);
+        }
+
+        return $query->get();
     }
 
     public function get($id): ?Task
@@ -35,7 +41,7 @@ class TaskRepository implements TaskRepositoryInterface
         if (isset($attributes['completed'])) {
             $data['completed'] = $attributes['completed'];
         }
-        
+
         if (isset($attributes['name'])) {
             $data['name'] = $attributes['name'];
         }

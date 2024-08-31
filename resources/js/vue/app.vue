@@ -4,6 +4,12 @@
             <h2 id="title">Php-Simple To Do List App</h2>
             <addItemForm @reloadlist="getList()" />
         </div>
+        <button @click="toggleFilter" :class="{
+            'btn-default': !showAll,
+            'btn-active': showAll
+        }">
+            {{ showAll ? 'Show Incomplete Tasks' : 'Show All Tasks' }}
+        </button>
         <listView :items="items" @reloadlist="getList()" />
     </div>
 </template>
@@ -15,7 +21,10 @@ import axios from "axios";
 export default {
     data() {
         return {
-            items: []
+            items: [],
+            showAll: false,   // Flag to show all tasks or incomplete tasks
+            loading: false,   // Loading state
+            error: null       // Error state
         }
     },
     components: {
@@ -24,11 +33,18 @@ export default {
     },
     methods: {
         getList() {
-            axios.get('api/tasks').then((response)=> {
+            const params = this.showAll ? {} : { completed: 0 };
+            axios.get("api/tasks", {
+                    params
+                }).then((response)=> {
                 this.items = response.data.results
             }).catch((error) => {
                 console.log(error);
             })
+        },
+        toggleFilter() {
+            this.showAll = !this.showAll;
+            this.getList();
         }
     },
     mounted() {
@@ -50,5 +66,19 @@ export default {
 
 #title {
     text-align: center;
+}
+.btn-default {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+.btn-active {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  cursor: pointer;
 }
 </style>
