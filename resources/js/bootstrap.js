@@ -7,9 +7,12 @@ import 'bootstrap';
  */
 
 import axios from 'axios';
+import toastr from 'toastr';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+window.toastr = toastr;
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

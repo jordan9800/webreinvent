@@ -2,14 +2,11 @@
     <div class="todoListContainer">
         <div class="heading">
             <h2 id="title">Php-Simple To Do List App</h2>
-            <addItemForm @reloadlist="getList()" />
-        </div>
-        <button @click="toggleFilter" :class="{
-            'btn-default': !showAll,
-            'btn-active': showAll
-        }">
-            {{ showAll ? 'Show Incomplete Tasks' : 'Show All Tasks' }}
+            <button @click="toggleFilter" :class="{'show-all-default': !showAll,'show-all-primary': showAll}">
+            {{ showAll ? 'New Added Tasks' : 'Show All Tasks' }}
         </button>
+        <addItemForm @reloadlist="getList()" />
+        </div>
         <listView :items="items" @reloadlist="getList()" />
     </div>
 </template>
@@ -33,7 +30,7 @@ export default {
     },
     methods: {
         getList() {
-            const params = this.showAll ? {} : { completed: 0 };
+            const params = this.showAll ? { deleted: 1} : { completed: 0};
             axios.get("api/tasks", {
                     params
                 }).then((response)=> {
@@ -55,7 +52,8 @@ export default {
 
 <style scoped>
 .todoListContainer {
-    width: 350px;
+    width: 700px;
+    height: 1000px;
     margin: auto;
 }
 
@@ -80,5 +78,21 @@ export default {
   border: 1px solid #ccc;
   padding: 10px 20px;
   cursor: pointer;
+}
+.show-all-default {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  cursor: pointer;
+  float: right;
+}
+.show-all-primary {
+  background-color: #3178d4;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  cursor: pointer;
+  float: right;
 }
 </style>

@@ -16,4 +16,6 @@ interface TaskRepositoryInterface
     public function update($id, $attributes = []): bool;
 
     public function delete($id): Task|bool;
+
+    public function restore($id): Task|bool;
 }

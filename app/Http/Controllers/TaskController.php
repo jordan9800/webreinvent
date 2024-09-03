@@ -116,4 +116,21 @@ class TaskController extends Controller
 
         return response()->json(['message' => 'Task Deletion Unsuccessfull!'], Response::HTTP_BAD_REQUEST);
     }
+
+    /**
+     * Restore the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function restore($id)
+    {
+        $success = $this->taskRepository->restore($id);
+
+        if ($success) {
+            return response()->json(['message' => 'Task Restored Successfully!'], Response::HTTP_OK);
+        }
+
+        return response()->json(['message' => 'Task Restoration Unsuccessfull!'], Response::HTTP_BAD_REQUEST);
+    }
 }

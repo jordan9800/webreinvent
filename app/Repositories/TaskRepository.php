@@ -16,7 +16,11 @@ class TaskRepository implements TaskRepositoryInterface
             $query->where('completed', $attributes['completed']);
         }
 
-        return $query->get();
+        if (isset($attributes['deleted'])) {
+            $query->withTrashed();
+        }
+
+        return $query->orderBy('created_at')->get();
     }
 
     public function get($id): ?Task
@@ -54,6 +58,13 @@ class TaskRepository implements TaskRepositoryInterface
     {
         $task = $this->get($id);
         $success = $task->delete();
+
+        return $success ? true : false;
+    }
+
+    public function restore($id): Task|bool
+    {
+        $success = Task::withTrashed()->where('id', $id)->restore();
 
         return $success ? true : false;
     }

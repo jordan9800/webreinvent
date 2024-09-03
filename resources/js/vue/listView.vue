@@ -5,6 +5,8 @@
             <td>Id</td>
             <td>Name</td>
             <td>Status</td>
+            <td>Created At</td>
+            <td>Deleted At</td>
             <td>Action</td>
         </tr>
         <tr v-for="(item, index) in items" :key="index">
